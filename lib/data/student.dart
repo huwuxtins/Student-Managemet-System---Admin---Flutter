@@ -22,8 +22,14 @@ Future<void> addStudent(Student student, String className) async {
       .set(student.toJson())
       .onError((error, stackTrace) => print(error));
 
-  await db
-      .collection("classes")
-      .doc(className)
-      .update({"students": FieldValue.arrayUnion([student.id])});
+  await db.collection("classes").doc(className).update({
+    "students": FieldValue.arrayUnion([student.id])
+  });
+}
+
+Future<void> deleteStudent(Student student) async {
+  await FirebaseFirestore.instance
+      .collection("students")
+      .doc(student.id)
+      .delete();
 }

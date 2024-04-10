@@ -1,8 +1,10 @@
 import 'package:admin/home/classes_page.dart';
 import 'package:admin/home/home_page.dart';
+import 'package:admin/home/login_page.dart';
 import 'package:admin/home/notifications_page.dart';
 import 'package:admin/home/subjects_page.dart';
 import 'package:admin/home/teachers_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CustomDrawer extends StatefulWidget {
@@ -81,7 +83,15 @@ class _CustomDrawerState extends State<CustomDrawer> {
           ListTile(
               leading: const Icon(Icons.logout),
               title: const Text("Logout"),
-              onTap: () {}),
+              onTap: () {
+                FirebaseAuth.instance
+                    .signOut()
+                    .then((value) => Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return const LoginPage();
+                          },
+                        )));
+              }),
         ],
       ),
     );

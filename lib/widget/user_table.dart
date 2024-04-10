@@ -9,6 +9,7 @@ import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:uuid/uuid.dart';
 
 class UserTable extends StatefulWidget {
   UserTable({key, required this.titles, required this.users, this.className})
@@ -51,12 +52,12 @@ class _UserTableState extends State<UserTable> {
       List<dynamic> row = excelData[i];
 
       Student rowData = Student(
-          id: row[0].toString().split("(")[1].split(",")[0],
+          id: const Uuid().v4(),
           name: row[1].toString().split("(")[1].split(",")[0],
           gender: row[2].toString().split("(")[1].split(",")[0],
           dob: DateTime.parse(row[3].toString().split("(")[1].split(",")[0]),
           email: row[4].toString().split("(")[1].split(",")[0],
-          password: "student-password-12398765",
+          password: "${row[4].toString().split("(")[1].split(",")[0]}-password-12398765",
           phoneNumber: row[5].toString().split("(")[1].split(",")[0],
           address: row[6].toString().split("(")[1].split(",")[0]);
 
@@ -80,7 +81,6 @@ class _UserTableState extends State<UserTable> {
         TextCellValue(user.gender),
         TextCellValue("${user.dob}"),
         TextCellValue(user.email),
-        TextCellValue(user.password),
         TextCellValue(user.phoneNumber),
         TextCellValue(user.address),
       ]);
@@ -134,7 +134,13 @@ class _UserTableState extends State<UserTable> {
               padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
               child: (selectedUsers.isNotEmpty)
                   ? ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        for (var element in selectedUsers) {
+                          if (element is Student) {
+                            deleteStudent(element);
+                          }
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           shape: ContinuousRectangleBorder(
@@ -289,15 +295,21 @@ class _UserTableState extends State<UserTable> {
               padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
               child: (isAdding == true)
                   ? ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         setState(() {
                           isAdding = !isAdding;
-                          for (var element in _users) {
-                            if (element is Student) {
-                              addStudent(element, _className!);
-                            }
-                          }
                         });
+                        for (var element in _users) {
+                          if (element is Student) {
+                            UserCredential userCredential = await FirebaseAuth
+                                .instance
+                                .createUserWithEmailAndPassword(
+                                    email: element.email,
+                                    password: element.password);
+                            element.id = userCredential.user!.uid;
+                            addStudent(element, _className!);
+                          }
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,

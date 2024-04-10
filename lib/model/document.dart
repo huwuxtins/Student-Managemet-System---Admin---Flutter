@@ -18,12 +18,12 @@ class Document {
     return Document(
         id: data['id'] as String,
         name: data['name']! as String,
-        linkPDF: data['id'] as String,
+        linkPDF: data['linkPDF'] as String,
         createdAt: _convertTimestamp(data['createdAt'] as Timestamp));
   }
 
   Map<String, Object?> toJson() {
-    return {"id": id, "name": name, "createdAt": createdAt};
+    return {"id": id, "name": name, "createdAt": createdAt, 'linkPDF': linkPDF};
   }
 
   static DateTime _convertTimestamp(Timestamp timestamp) {
